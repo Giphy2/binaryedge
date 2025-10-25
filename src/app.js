@@ -2,7 +2,7 @@
 
 
 import { LitElement, css, html } from 'lit';
-import { installRouter } from '@vaadin/router';
+import { Router } from '@vaadin/router';
 import './components/navbar.js';
 import './router.js';
 
@@ -22,7 +22,7 @@ class DerivApp extends LitElement {
   firstUpdated() {
     // Attach Vaadin Router to the outlet element
     const outlet = this.renderRoot.querySelector('#outlet');
-    installRouter(outlet, (location) => {
+    Router(outlet, (location) => {
       // router handled in src/router.js only; installRouter just wires navigation events.
     });
   }
