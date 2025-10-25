@@ -1,19 +1,21 @@
 // route definitions (using @vaadin/router)
 
-
 import { Router } from '@vaadin/router';
 
-// lazy import pages (good for performance)
-const routes = [
-  { path: '/', component: 'dashboard-page', action: async () => { await import('./pages/dashboard-page.js'); } },
-  { path: '/login', component: 'login-page', action: async () => { await import('./pages/login-page.js'); } },
-  // add more routes here:
-  { path: '/portfolio', action: async () => { await import('./pages/dashboard-page.js'); }, component: 'portfolio-page' },
-  { path: '(.*)', redirect: '/' } // catch-all
-];
+window.addEventListener('DOMContentLoaded', () => {
+  const app = document.querySelector('deriv-app');
+  const outlet = app?.shadowRoot?.querySelector('#outlet');
+  if (!outlet) {
+    console.error('Router outlet not found in DerivApp');
+    return;
+  }
 
-const outlet = document.querySelector('#outlet');
-const router = new Router(outlet);
-router.setRoutes(routes);
+  const router = new Router(outlet);
 
-export default router;
+  router.setRoutes([
+    { path: '/', component: 'dashboard-page', action: async () => { await import('./pages/dashboard-page.js'); } },
+    { path: '/login', component: 'login-page', action: async () => { await import('./pages/login-page.js'); } },
+    { path: '/portfolio', component: 'portfolio-page', action: async () => { await import('./pages/portfolio-page.js'); } },
+    { path: '(.*)', redirect: '/' }
+  ]);
+});
