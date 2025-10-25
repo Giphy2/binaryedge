@@ -1,7 +1,6 @@
 // root component (handles router outlet)
 import { LitElement, css, html } from 'lit';
 import { Router } from '@vaadin/router';
-import './components/navbar.js';
 import './router.js';
 
 class DerivApp extends LitElement {
@@ -18,7 +17,6 @@ class DerivApp extends LitElement {
 
   render() {
     return html`
-      <deriv-navbar></deriv-navbar>
       <main id="outlet" role="main"></main>
     `;
   }

@@ -1,0 +1,14 @@
+:root {
+  --color-primary: #ff444f;
+  --color-bg: #f9fafb;
+  --color-card: #ffffff;
+  --color-text: #333333;
+  --color-sidebar-bg: #0e0e0e;
+  --color-sidebar-text: #ffffff;
+  --color-success: #00c851;
+  --color-error: #ff444f;
+  --color-border: #e5e7eb;
+
+  --font-base: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --border-radius: 6px;
+}

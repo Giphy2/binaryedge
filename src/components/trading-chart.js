@@ -1,74 +1,56 @@
-// simple canvas skeleton (will receive ticks later)
-
-import { LitElement, css, html } from 'lit';
-import { appStore } from '../store/app-store.js';
+import { LitElement, html, css } from 'lit';
 
 class TradingChart extends LitElement {
-  static styles = css`
-    :host { display:block; background:#fff; border-radius:8px; padding:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
-    canvas { width:100%; height:320px; display:block; }
-  `;
-
   constructor() {
     super();
-    this.selectedSymbol = null;
-    this.ticks = [];
-    appStore.subscribe((state) => {
-      // store will update selectedSymbol and latest ticks
-      this.selectedSymbol = state.selectedSymbol;
-      if (state.ticks && state.ticks[this.selectedSymbol]) {
-        this.ticks = state.ticks[this.selectedSymbol].slice(-200); // keep last 200
-        this._draw();
-      }
-    });
-  }
-
-  render() {
-    return html`
-      <h3>Chart ${this.selectedSymbol ? `— ${this.selectedSymbol}` : ''}</h3>
-      <canvas id="chart"></canvas>
-    `;
+    this.data = [];
   }
 
   firstUpdated() {
-    this.canvas = this.renderRoot.querySelector('#chart');
+    this.canvas = this.renderRoot.querySelector('canvas');
     this.ctx = this.canvas.getContext('2d');
-    this._resize();
-    window.addEventListener('resize', () => this._resize());
+    this.canvas.width = this.canvas.offsetWidth;
+    this.canvas.height = this.canvas.offsetHeight;
+
+    this.addEventListener('tick', e => this.addTick(e.detail));
   }
 
-  _resize() {
-    const ratio = window.devicePixelRatio || 1;
-    const { width } = this.canvas.getBoundingClientRect();
-    this.canvas.width = Math.floor(width * ratio);
-    this.canvas.height = Math.floor(320 * ratio);
-    if (this.ctx) this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    this._draw();
+  addTick(tick) {
+    const price = tick.quote || tick.close || tick.bid || tick.ask;
+    if (!price) return;
+
+    this.data.push(price);
+    if (this.data.length > 50) this.data.shift(); // last 50 ticks
+    this.draw();
   }
 
-  _draw() {
-    if (!this.ctx) return;
+  draw() {
     const ctx = this.ctx;
-    ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
-    // simple line chart drawing of ticks.price
-    if (!this.ticks || this.ticks.length === 0) {
-      ctx.fillStyle = '#666';
-      ctx.fillText('No data', 12, 20);
-      return;
-    }
-    const prices = this.ticks.map(t => Number(t.price || t.quote || t));
-    const min = Math.min(...prices);
-    const max = Math.max(...prices);
-    const w = this.canvas.width / (prices.length - 1);
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+    if (!this.data.length) return;
+
+    const max = Math.max(...this.data);
+    const min = Math.min(...this.data);
+
     ctx.beginPath();
-    ctx.strokeStyle = '#0b1220';
-    ctx.lineWidth = 1.5;
-    prices.forEach((p, i) => {
-      const x = i * w;
-      const y = this.canvas.height - ((p - min) / (max - min || 1) * this.canvas.height);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    ctx.strokeStyle = '#4caf50';
+    ctx.lineWidth = 2;
+
+    this.data.forEach((price, i) => {
+      const x = (i / (this.data.length - 1)) * width;
+      const y = height - ((price - min) / (max - min)) * height;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     });
+
     ctx.stroke();
+  }
+
+  render() {
+    return html`<canvas style="width:100%;height:300px;"></canvas>`;
   }
 }
 
